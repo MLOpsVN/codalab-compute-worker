@@ -296,12 +296,12 @@ def run(task_id, task_args):
 
     try:
         # Cleanup dir in case any processes didn't clean up properly
-        for the_file in os.listdir(temp_dir):
-            file_path = os.path.join(temp_dir, the_file)
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path, ignore_errors=True)
+        # for the_file in os.listdir(temp_dir):
+        #    file_path = os.path.join(temp_dir, the_file)
+        #    if os.path.isfile(file_path):
+        #        os.unlink(file_path)
+        #    elif os.path.isdir(file_path):
+        #        shutil.rmtree(file_path, ignore_errors=True)
 
         _send_update(task_id, 'running', secret, extra={
             'metadata': debug_metadata
@@ -326,8 +326,8 @@ def run(task_id, task_args):
             hidden_ref_original_location = join(run_dir, 'hidden_ref')
             if exists(hidden_ref_original_location):
                 logger.info("Found reference data AND an ingestion program, hiding reference data for ingestion program to use.")
-                shutil.move(hidden_ref_original_location, temp_dir)
-                hidden_ref_dir = join(temp_dir, 'hidden_ref')
+                # shutil.move(hidden_ref_original_location, temp_dir)
+                # hidden_ref_dir = join(temp_dir, 'hidden_ref')
 
         logger.info("Metadata: %s" % bundles)
 
@@ -791,3 +791,10 @@ def run(task_id, task_args):
             shutil.rmtree(root_dir, ignore_errors=True)
         except:
             logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
+    if shared_dir is not None and not os.environ.get("DONT_FINALIZE_SUBMISSION"):
+        # Try cleaning-up temporary directory
+        try:
+            os.chdir(current_dir)
+            shutil.rmtree(shared_dir, ignore_errors=True)
+        except:
+            logger.exception("Unable to clean-up shared folder %s (task_id=%s)", shared_dir, task_id)
